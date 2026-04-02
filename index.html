@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Taskr</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- AUTH SCREEN -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-bg"><div class="auth-glow"></div></div>
+    <div class="auth-card">
+      <div class="brand">
+        <span class="brand-icon">✦</span>
+        <span class="brand-name">taskr</span>
+      </div>
+      <p class="brand-sub">simple. clean. yours.</p>
+
+      <div class="tab-row">
+        <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+
+      <div id="auth-error" class="msg error hidden"></div>
+      <div id="auth-success" class="msg success hidden"></div>
+
+      <div class="field-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="field-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+
+      <button class="btn-primary" id="auth-btn" onclick="handleAuth()">
+        <span id="auth-btn-text">Sign In</span>
+      </button>
+
+      <p class="auth-switch" id="auth-footer">
+        Don't have an account? <a href="#" onclick="switchTab('signup')">Sign up free</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- APP SCREEN -->
+  <div id="app-screen" class="screen">
+    <div class="app-layout">
+
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <span class="brand-icon">✦</span>
+          <span class="brand-name">taskr</span>
+        </div>
+        <div class="sidebar-user">
+          <div class="avatar" id="avatar-letter">?</div>
+          <div class="user-info">
+            <span class="user-label">signed in as</span>
+            <span id="user-email-display" class="user-email-text"></span>
+          </div>
+        </div>
+        <div class="sidebar-stats">
+          <div class="stat-row">
+            <span class="stat-label">Total</span>
+            <span class="stat-val" id="stat-total">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Done</span>
+            <span class="stat-val accent" id="stat-done">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Left</span>
+            <span class="stat-val" id="stat-left">0</span>
+          </div>
+        </div>
+        <div class="sidebar-bottom">
+          <button class="btn-ai-chat" onclick="toggleAI()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/></svg>
+            Ask AI
+          </button>
+          <button class="btn-logout" onclick="logout()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </button>
+        </div>
+      </aside>
+
+      <!-- AI CHAT PANEL -->
+      <div id="ai-panel" class="ai-panel hidden">
+        <div class="ai-panel-header">
+          <div class="ai-header-left">
+            <div class="ai-orb"></div>
+            <div>
+              <span class="ai-title">AI Assistant</span>
+              <span class="ai-model">GPT-4.1 nano · puter.js</span>
+            </div>
+          </div>
+          <button class="ai-close" onclick="toggleAI()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div id="ai-messages" class="ai-messages">
+          <div class="ai-welcome">
+            <div class="ai-welcome-icon">✦</div>
+            <p>Hey! I'm your AI assistant. Ask me anything — I can help you plan tasks, prioritize your day, or just chat.</p>
+          </div>
+        </div>
+        <div class="ai-input-row">
+          <input type="text" id="ai-input" placeholder="Ask anything…" onkeydown="if(event.key==='Enter') sendAI()"/>
+          <button class="ai-send-btn" onclick="sendAI()" id="ai-send-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <main class="main-content">
+        <div class="page-header">
+          <h1 class="page-title">My Tasks</h1>
+          <span class="page-date" id="page-date"></span>
+        </div>
+
+        <div class="add-card">
+          <input type="text" id="new-task" placeholder="What needs to be done?" onkeydown="if(event.key==='Enter') addTask()"/>
+          <button class="btn-add" onclick="addTask()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add
+          </button>
+        </div>
+
+        <div class="filter-row">
+          <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+          <button class="filter-btn" data-filter="active" onclick="setFilter('active')">Active</button>
+          <button class="filter-btn" data-filter="done" onclick="setFilter('done')">Done</button>
+        </div>
+
+        <div id="task-list" class="task-list"></div>
+
+        <div id="clear-bar" class="clear-bar hidden">
+          <button class="btn-clear-done" onclick="clearCompleted()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+            Clear completed
+          </button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://js.puter.com/v2/"></script>
+  <script src="app.js"></script>
+  <script src="ai.js"></script>
+  <script>
+    document.getElementById('page-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  </script>
+</body>
+</html>
